@@ -7,7 +7,7 @@
  */
 defined('C5_EXECUTE') or die('Access Denied.');
 $c = Page::getCurrentPage();
-if (empty($previewing) && $c->isEditMode()) {
+if ($c->isEditMode()) {
     $localization = Localization::getInstance();
     $localization->pushActiveContext('ui');
     ?>
@@ -16,17 +16,13 @@ if (empty($previewing) && $c->isEditMode()) {
     </div>
     <?php
     $localization->popActiveContext();
-} elseif (empty($read) || !empty($previewing)) {
+} elseif (empty($read)) {
     $wrapperClasses = [
         $position,
     ];
-    if (empty($previewing)) {
-        $cp = new Permissions($c);
-        if (is_object($cp) && $cp->canViewToolbar()) {
-            $wrapperClasses[] = 'has-toolbar';
-        }
-    } else {
-        $wrapperClasses[] = 'pure-cookies-notice-wrapper-preview';
+    $cp = new Permissions($c);
+    if (is_object($cp) && $cp->canViewToolbar()) {
+        $wrapperClasses[] = 'has-toolbar';
     }
     ?>
     <div id="pure-cookies-notice-<?php echo $bID ?>" class="pure-cookies-notice-wrapper <?php echo implode(' ', $wrapperClasses) ?>" data-bid="<?php echo $bID ?>">
@@ -48,17 +44,13 @@ if (empty($previewing) && $c->isEditMode()) {
         </div>
     </div>
 
+    <script>
+        $(document).ready(function() {
+            $('#pure-cookies-notice-<?php echo $bID ?>').pureCookiesNotify(<?php echo json_encode([
+                'sitewideCookie' => !empty($sitewideCookie),
+                'interactionImpliesOk' => !empty($interactionImpliesOk),
+            ]) ?>);
+        });
+    </script>
     <?php
-    if (empty($previewing)) {
-        ?>
-        <script>
-            $(document).ready(function() {
-                $('#pure-cookies-notice-<?php echo $bID ?>').pureCookiesNotify(<?php echo json_encode([
-                    'sitewideCookie' => !empty($sitewideCookie),
-                    'interactionImpliesOk' => !empty($interactionImpliesOk),
-                ]) ?>);
-            });
-        </script>
-        <?php
-    }
 }
